@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Instrument+Serif:ital@1&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg: #11100F;
+    --bg-deep: #090909;
+    --surface: rgba(28, 27, 26, 0.62);
+    --surface-soft: rgba(255, 255, 255, 0.035);
+    --text: #F4F1EC;
+    --text-secondary: #B7B0A8;
+    --text-muted: #817B75;
+    --rosewood: #7D4047;
+    --rosewood-soft: #8A555B;
+    --cyan: #00A9C7;
+    --green: #16B879;
+    --border: rgba(255, 255, 255, 0.12);
+  }
+
+  html, body, #root {
+    background-color: #11100F !important;
+    color: #F4F1EC;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    letter-spacing: -0.015em;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Master Editorial Typography */
+.font-serif-italic {
+  font-family: 'Instrument Serif', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.serif-headline {
+  font-family: 'Playfair Display', 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.hero-headline-framer {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: clamp(3.0rem, 7.5vw, 6.25rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: #F4F1EC;
+}
+
+.section-headline-framer {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: clamp(2.25rem, 5.5vw, 4.25rem);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  color: #F4F1EC;
+}
+
+.eyebrow-pill-framer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #B7B0A8;
+  backdrop-filter: blur(20px);
+}
+
+/* Smoked Glass Container Utilities */
+.smoked-glass {
+  background: rgba(28, 27, 26, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Non-rotating Lift Hover */
+.lift-hover {
+  transition: transform 450ms cubic-bezier(.16, 1, .3, 1), border-color 300ms ease, box-shadow 300ms ease;
+}
+.lift-hover:hover {
+  transform: translateY(-3px) scale(1.015);
+  border-color: rgba(255, 255, 255, 0.20);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+/* Static Icon Safeguard: Enforce ZERO rotation */
+.static-icon, .static-icon * {
+  animation: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #11100F;
+}
+::-webkit-scrollbar-thumb {
+  background: #262422;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #363432;
+}

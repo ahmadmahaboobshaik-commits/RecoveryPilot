@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none">
+  <defs>
+    <linearGradient id="rpBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1719"/>
+      <stop offset="100%" stop-color="#11100F"/>
+    </linearGradient>
+    <linearGradient id="rpBurgundy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B25C67"/>
+      <stop offset="100%" stop-color="#7D4047"/>
+    </linearGradient>
+    <linearGradient id="rpLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#EDE8E2"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer Card Plate -->
+  <rect x="1" y="1" width="30" height="30" rx="7" fill="url(#rpBg)" stroke="url(#rpBurgundy)" stroke-width="1.5"/>
+  
+  <!-- Subtle Burgundy Ambient Glow -->
+  <circle cx="9" cy="9" r="6" fill="#7D4047" opacity="0.3"/>
+  
+  <!-- 'R' Monogram (High-Contrast White) -->
+  <path d="M6 8.5h5.3c2.4 0 3.8 1.25 3.8 3.25 0 1.9-1.25 3.05-3.3 3.25v0.05c1.8 0.3 2.5 1.4 2.85 3.45 0.3 1.8 0.5 3.1 0.9 3.5h-2.75c-0.35-0.5-0.55-1.75-0.85-3.35-0.35-1.85-1.1-2.55-2.7-2.55H8.75V23.5H6V8.5zm2.75 2.25v3.85h2.35c1.15 0 1.85-0.65 1.85-1.9 0-1.25-0.7-1.95-1.85-1.95H8.75z" fill="url(#rpLight)"/>
+
+  <!-- 'P' Monogram (Signature Burgundy) -->
+  <path d="M17.25 8.5h5.6c2.5 0 4 1.4 4 3.65 0 2.25-1.5 3.65-4 3.65H20V23.5h-2.75V8.5zm2.75 2.25v4.8h2.65c1.25 0 2.05-0.8 2.05-2.4 0-1.6-0.8-2.4-2.05-2.4H20z" fill="url(#rpBurgundy)"/>
+</svg>

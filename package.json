@@ -1,0 +1,9 @@
+{
+  "name": "recovery-pilot-root",
+  "version": "1.0.0",
+  "description": "RecoveryPilot root runner",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build"
+  }
+}
