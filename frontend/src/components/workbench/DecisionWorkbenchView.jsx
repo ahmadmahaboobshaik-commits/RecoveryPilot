@@ -222,9 +222,18 @@ export function DecisionWorkbenchView({ onSelectPayment }) {
                 <Bot className="w-5 h-5" />
                 <h3 className="font-bold font-mono text-sm text-[#F8F6F2]">1. AI Advisory</h3>
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20">
-                Non-Binding
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border ${
+                  d?.source === 'anthropic'
+                    ? 'text-purple-300 bg-purple-500/10 border-purple-500/30'
+                    : 'text-sky-400 bg-sky-500/10 border-sky-500/20'
+                }`}>
+                  {d?.source === 'anthropic' ? 'CLAUDE ENHANCED' : 'LOCAL ADVISORY'}
+                </span>
+                <span className="text-[10px] font-mono font-bold uppercase text-[#DDD5CD] bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                  Non-Binding
+                </span>
+              </div>
             </div>
 
             {d ? (
@@ -260,8 +269,14 @@ export function DecisionWorkbenchView({ onSelectPayment }) {
             )}
           </div>
 
-          <div className="mt-4 pt-3 border-t border-white/10 text-[11px] font-mono text-[#6F6A64]">
-            Claude AI Intelligence Layer
+          <div className="mt-4 pt-3 border-t border-white/10 space-y-1">
+            <div className="text-[11px] font-mono text-[#817B75] flex items-center justify-between">
+              <span>{d?.source === 'anthropic' ? 'Anthropic Claude AI Layer' : 'Built-in Deterministic Engine'}</span>
+              <span className="text-[10px] uppercase font-bold text-emerald-400">● Active</span>
+            </div>
+            <p className="text-[10px] font-mono text-[#6F6A64] leading-tight">
+              When no external AI provider is configured, RecoveryPilot uses its built-in deterministic diagnosis engine.
+            </p>
           </div>
         </div>
 

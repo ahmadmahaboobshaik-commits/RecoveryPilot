@@ -43,7 +43,7 @@ export function Decisions({ onSelectPayment }) {
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Observe how Claude AI advisory recommendations are evaluated against authoritative policy guardrails.
+            Observe how AI and deterministic advisory recommendations are evaluated against authoritative policy guardrails.
           </p>
         </div>
 

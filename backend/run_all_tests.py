@@ -13,6 +13,7 @@ TEST_FILES = [
     "backend/test_all_endpoints.py",
     "backend/test_e2e_recovery_lifecycle.py",
     "backend/test_final_comprehensive_verification.py",
+    "backend/test_optional_ai_architecture.py",
 ]
 
 def main():

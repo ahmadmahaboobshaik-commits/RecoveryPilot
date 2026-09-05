@@ -129,9 +129,16 @@ export function PaymentDetailsModal({ paymentId, onClose }) {
 
               {/* AI Diagnosis Panel */}
               <div className="p-4 rounded-2xl bg-violet-950/20 border border-violet-500/20 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-mono text-violet-300 font-semibold">
-                  <BrainCircuit className="w-4 h-4 text-violet-400" />
-                  <span>Claude AI Advisory Diagnosis</span>
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center gap-2 text-violet-300 font-semibold">
+                    <BrainCircuit className="w-4 h-4 text-violet-400" />
+                    <span>AI Diagnosis</span>
+                  </div>
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                    diag?.source === 'anthropic' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                  }`}>
+                    {diag?.source === 'anthropic' ? 'CLAUDE ENHANCED' : 'LOCAL ADVISORY'}
+                  </span>
                 </div>
 
                 {diag ? (
@@ -146,6 +153,9 @@ export function PaymentDetailsModal({ paymentId, onClose }) {
                     </div>
                     <p className="text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5 text-[11px] leading-relaxed">
                       "{diag.reason || payment.failure_message}"
+                    </p>
+                    <p className="text-[10px] text-slate-500 font-mono">
+                      When no external AI provider is configured, RecoveryPilot uses its built-in deterministic diagnosis engine.
                     </p>
                   </div>
                 ) : (

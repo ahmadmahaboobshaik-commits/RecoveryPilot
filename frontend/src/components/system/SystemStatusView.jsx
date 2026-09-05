@@ -28,11 +28,11 @@ export function SystemStatusView({ healthStatus = 'ok' }) {
       desc: 'ACID storage for payments, audit recovery events, and batch runs.'
     },
     {
-      name: 'Claude AI Diagnosis Engine',
+      name: 'AI & Deterministic Diagnosis Engine',
       status: 'ADVISORY',
       icon: Bot,
-      endpoint: 'Anthropic API',
-      desc: 'Advisory intelligence calculating root cause and recoverability scores (non-executing).'
+      endpoint: 'Anthropic / Local Engine',
+      desc: 'Advisory intelligence calculating root cause and recoverability scores via Claude when configured, or built-in deterministic rules.'
     },
     {
       name: 'Razorpay Payment Gateway',

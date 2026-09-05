@@ -212,7 +212,12 @@ export function PaymentDetailModal({ paymentId, onClose, onRefreshData }) {
                     <div className="flex items-center gap-2 text-violet-800 font-bold font-display text-sm">
                       <Bot className="w-4 h-4 text-violet-600" />
                       <span>AI Diagnosis</span>
-                      <span className="text-[10px] font-mono font-bold text-violet-700 px-2 py-0.5 bg-violet-100 rounded-full">
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                        d?.source === 'anthropic' ? 'bg-purple-100 text-purple-700' : 'bg-violet-100 text-violet-700'
+                      }`}>
+                        {d?.source === 'anthropic' ? 'CLAUDE ENHANCED' : 'LOCAL ADVISORY'}
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-500 px-1.5 py-0.5 bg-slate-100 rounded-full">
                         Advisory Only
                       </span>
                     </div>
@@ -235,6 +240,10 @@ export function PaymentDetailModal({ paymentId, onClose, onRefreshData }) {
                       <div className="p-3 rounded-xl bg-white border border-violet-100 text-xs text-slate-700 leading-relaxed font-light">
                         {d.reason || 'AI diagnosis recorded.'}
                       </div>
+
+                      <p className="text-[10px] text-slate-500 font-mono">
+                        When no external AI provider is configured, RecoveryPilot uses its built-in deterministic diagnosis engine.
+                      </p>
                     </div>
                   ) : (
                     <div className="mt-3 text-xs text-slate-500">

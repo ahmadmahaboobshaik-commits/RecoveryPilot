@@ -4,19 +4,12 @@ from pydantic import BaseModel, Field
 
 class DiagnosisResult(BaseModel):
     """
-    Pydantic schema representing the structured AI diagnosis result from Claude.
-    All scores (recoverability, confidence) are prototype AI assessments between 0.0 and 1.0.
+    Pydantic schema representing the structured diagnosis result.
+    Origin can be 'anthropic' (when ANTHROPIC_API_KEY is configured) or 'local' (deterministic fallback).
+    All scores (recoverability, confidence) are assessments between 0.0 and 1.0.
     """
 
-    root_cause: Literal[
-        "insufficient_funds",
-        "expired_card",
-        "bank_timeout",
-        "gateway_error",
-        "3ds_auth_failed",
-        "checkout_abandoned",
-        "unknown"
-    ] = Field(
+    root_cause: str = Field(
         ...,
         description="The primary identified root cause of the payment failure or abandonment."
     )
@@ -48,5 +41,10 @@ class DiagnosisResult(BaseModel):
         ...,
         ge=0.0,
         le=1.0,
-        description="Confidence score (0.0 to 1.0) of the AI in this diagnosis."
+        description="Confidence score (0.0 to 1.0) of the diagnosis."
+    )
+
+    source: Literal["anthropic", "local"] = Field(
+        default="local",
+        description="Origin source of the diagnosis: 'anthropic' for Claude or 'local' for built-in deterministic rules."
     )

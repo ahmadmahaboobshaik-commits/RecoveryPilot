@@ -49,15 +49,6 @@ DIAGNOSIS_TOOL_SCHEMA = {
         "properties": {
             "root_cause": {
                 "type": "string",
-                "enum": [
-                    "insufficient_funds",
-                    "expired_card",
-                    "bank_timeout",
-                    "gateway_error",
-                    "3ds_auth_failed",
-                    "checkout_abandoned",
-                    "unknown"
-                ],
                 "description": "The primary identified root cause."
             },
             "recoverability": {
@@ -132,38 +123,46 @@ def calculate_customer_history(db: Session, payment: Payment) -> Dict[str, Any]:
 
 def get_deterministic_diagnosis(payment: Payment, customer_history: Optional[Dict[str, Any]] = None) -> DiagnosisResult:
     """
-    Deterministic Diagnosis Engine Fallback:
+    Deterministic Local Diagnosis Engine:
+    Analyzes payment failure information and produces an advisory diagnosis based on deterministic rules.
     Used when ANTHROPIC_API_KEY is not configured or in testing environment.
-    Evaluates failure_code, payment_method, status, and retry_count to produce
-    a deterministic DiagnosisResult without pretending Claude generated it.
+    Guaranteed:
+    - Never requires an external network call.
+    - Never crashes on missing API keys.
+    - Advisory only; never executes recovery actions.
+    - Sets source='local'.
     """
-    code = (payment.failure_code or "UNKNOWN").upper()
-    status_val = (payment.status or "failed").lower()
+    code = (payment.failure_code or "UNKNOWN").upper().strip()
+    status_val = (payment.status or "failed").lower().strip()
 
+    # Guard cases: Opted out, exhausted, or terminal state
     if payment.opted_out or payment.retry_count >= 3 or status_val == "exhausted":
         return DiagnosisResult(
             root_cause="unknown",
             recoverability=0.05,
             recommended_action="stop",
             reason="Customer has opted out or retry limit reached. Recommended action is stop.",
-            confidence=0.95
+            confidence=0.95,
+            source="local"
         )
 
-    if code == "INSUFFICIENT_FUNDS":
+    if code == "GATEWAY_ERROR":
         return DiagnosisResult(
-            root_cause="insufficient_funds",
-            recoverability=0.70,
-            recommended_action="wait",
-            reason="Insufficient customer account balance. Recommend brief wait before sending reminder or retry.",
-            confidence=0.85
+            root_cause="gateway_error",
+            recoverability=0.75,
+            recommended_action="retry",
+            reason="Transient gateway error. Candidate for automated retry.",
+            confidence=0.85,
+            source="local"
         )
-    elif code == "CARD_EXPIRED":
+    elif code == "TIMEOUT":
         return DiagnosisResult(
-            root_cause="expired_card",
-            recoverability=0.30,
-            recommended_action="payment_link",
-            reason="Card used is expired. Recommend sending a payment link to update payment method.",
-            confidence=0.95
+            root_cause="timeout",
+            recoverability=0.85,
+            recommended_action="retry",
+            reason="Transient timeout error. Candidate for automated retry.",
+            confidence=0.90,
+            source="local"
         )
     elif code == "BANK_TIMEOUT":
         return DiagnosisResult(
@@ -171,7 +170,44 @@ def get_deterministic_diagnosis(payment: Payment, customer_history: Optional[Dic
             recoverability=0.85,
             recommended_action="retry",
             reason="Temporary bank server timeout. Safe candidate for immediate automated retry.",
-            confidence=0.90
+            confidence=0.90,
+            source="local"
+        )
+    elif code == "NETWORK_ERROR":
+        return DiagnosisResult(
+            root_cause="network_error",
+            recoverability=0.75,
+            recommended_action="retry",
+            reason="Transient network error. Candidate for automated retry.",
+            confidence=0.85,
+            source="local"
+        )
+    elif code == "INSUFFICIENT_FUNDS":
+        return DiagnosisResult(
+            root_cause="insufficient_funds",
+            recoverability=0.70,
+            recommended_action="payment_link",
+            reason="Insufficient customer account balance. Recommend sending payment link to settle.",
+            confidence=0.85,
+            source="local"
+        )
+    elif code == "CARD_DECLINED":
+        return DiagnosisResult(
+            root_cause="card_declined",
+            recoverability=0.30,
+            recommended_action="payment_link",
+            reason="Card was declined by issuing bank. Recommend sending a payment link to update payment method.",
+            confidence=0.90,
+            source="local"
+        )
+    elif code == "CARD_EXPIRED":
+        return DiagnosisResult(
+            root_cause="expired_card",
+            recoverability=0.30,
+            recommended_action="payment_link",
+            reason="Card used is expired. Recommend sending a payment link to update payment method.",
+            confidence=0.95,
+            source="local"
         )
     elif code == "3DS_AUTH_FAILED":
         return DiagnosisResult(
@@ -179,7 +215,8 @@ def get_deterministic_diagnosis(payment: Payment, customer_history: Optional[Dic
             recoverability=0.60,
             recommended_action="payment_link",
             reason="3-D Secure authentication failed. Recommend payment link for customer authorization.",
-            confidence=0.80
+            confidence=0.80,
+            source="local"
         )
     elif code == "CHECKOUT_ABANDONED" or status_val == "abandoned":
         return DiagnosisResult(
@@ -187,36 +224,29 @@ def get_deterministic_diagnosis(payment: Payment, customer_history: Optional[Dic
             recoverability=0.65,
             recommended_action="reminder",
             reason="Customer abandoned checkout session. Recommend sending payment link or reminder.",
-            confidence=0.85
-        )
-    elif code in ["GATEWAY_ERROR", "NETWORK_ERROR"]:
-        return DiagnosisResult(
-            root_cause="gateway_error",
-            recoverability=0.75,
-            recommended_action="retry",
-            reason="Transient gateway error. Candidate for automated retry.",
-            confidence=0.85
+            confidence=0.85,
+            source="local"
         )
     else:
+        # Unknown / Unrecognized failure codes
         return DiagnosisResult(
             root_cause="unknown",
             recoverability=0.50,
             recommended_action="wait",
-            reason="Unspecified gateway failure. Recommend holding for manual or scheduled review.",
-            confidence=0.60
+            reason="Unspecified or unknown failure reason. Recommend holding for review.",
+            confidence=0.60,
+            source="local"
         )
 
 
 def diagnose_payment(payment: Payment, customer_history: Dict[str, Any]) -> DiagnosisResult:
     """
-    Calls Anthropic Claude API using structured outputs (Tool Use) if ANTHROPIC_API_KEY is set.
-    Otherwise raises AIConfigurationError.
+    Calls Anthropic Claude API using structured outputs (Tool Use) if ANTHROPIC_API_KEY is configured.
+    Otherwise falls back cleanly to deterministic local diagnosis.
     """
     api_key = settings.ANTHROPIC_API_KEY
     if not api_key or api_key.strip() == "" or api_key == "your_anthropic_api_key_here":
-        raise AIConfigurationError(
-            "ANTHROPIC_API_KEY is not configured. Please set a valid key in environment or .env file."
-        )
+        return get_deterministic_diagnosis(payment, customer_history)
 
     try:
         client = anthropic.Anthropic(api_key=api_key)
@@ -240,7 +270,9 @@ def diagnose_payment(payment: Payment, customer_history: Dict[str, Any]) -> Diag
         if not tool_use or not tool_use.input:
             raise AIServiceError("Claude response did not return structured tool call output.")
 
-        diagnosis = DiagnosisResult.model_validate(tool_use.input)
+        data = dict(tool_use.input)
+        data["source"] = "anthropic"
+        diagnosis = DiagnosisResult.model_validate(data)
         return diagnosis
 
     except anthropic.APIError as err:
@@ -254,10 +286,15 @@ def diagnose_payment(payment: Payment, customer_history: Dict[str, Any]) -> Diag
 def get_diagnosis_with_fallback(payment: Payment, customer_history: Optional[Dict[str, Any]] = None) -> DiagnosisResult:
     """
     High-level Diagnosis Provider:
-    Attempts Claude AI diagnosis if ANTHROPIC_API_KEY is configured.
-    Falls back cleanly to deterministic diagnosis engine when key is missing or API unavailable.
+    - If ANTHROPIC_API_KEY is configured and valid, attempts Claude AI diagnosis (source='anthropic').
+    - If ANTHROPIC_API_KEY is missing, empty, placeholder, or API fails, uses local deterministic diagnosis (source='local').
+    - Never raises an unhandled exception for missing API keys.
     """
+    api_key = settings.ANTHROPIC_API_KEY
+    if not api_key or api_key.strip() == "" or api_key == "your_anthropic_api_key_here":
+        return get_deterministic_diagnosis(payment, customer_history)
+
     try:
         return diagnose_payment(payment, customer_history or {})
-    except (AIConfigurationError, AIServiceError):
+    except Exception:
         return get_deterministic_diagnosis(payment, customer_history)

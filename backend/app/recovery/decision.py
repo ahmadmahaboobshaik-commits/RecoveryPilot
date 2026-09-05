@@ -13,9 +13,21 @@ PLAYBOOK_MAPPING: Dict[str, Tuple[str, str]] = {
         "payment_link",
         "Expired cards should not be blindly retried; use a payment link."
     ),
+    "card_declined": (
+        "payment_link",
+        "Card was declined; send payment link for customer to provide an alternate card."
+    ),
     "bank_timeout": (
         "retry",
         "Bank timeout is a temporary infrastructure issue; safe candidate for retry."
+    ),
+    "timeout": (
+        "retry",
+        "Timeout is a temporary infrastructure issue; safe candidate for retry."
+    ),
+    "network_error": (
+        "retry",
+        "Network error is a transient failure; safe candidate for retry."
     ),
     "gateway_error": (
         "retry",
